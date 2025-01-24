@@ -51,7 +51,7 @@ const userSchema = new mongoose.Schema({
 // normal function hi this deta hain
 userSchema.pre('save',async function (next){
     if(!this.isModified("password")) return next();
-    this.password = await bcrypt.hash("password",10);
+    this.password = await bcrypt.hash(this.password,10);
     next();
 })
 
@@ -62,6 +62,7 @@ userSchema.methods.isPasswordCorrect = async function(password){
 userSchema.methods.generateAccessToken = function(){
     return jwt.sign(
         {
+            // we will use it in auth.middleware.js
             _id: this._id,
             username: this.username,
             fullName: this.fullName,
