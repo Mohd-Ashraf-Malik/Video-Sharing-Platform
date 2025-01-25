@@ -151,8 +151,8 @@ const logoutUser = asyncHandler(async (req,res)=>{
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                refreshToken: undefined
+            $unset: {
+                refreshToken: 1  // this removes the field from document
             }
         },
         {
@@ -196,8 +196,14 @@ const refreshAccessToken = asyncHandler(async (req,res)=>{
         if(!user){
             throw new ApiError(401,"Invalid refresh token")
         }
+
+        const dbRefreshToken = await user.refreshToken;
+
+        console.log("dbRefreshToken: ",dbRefreshToken);
+        console.log("decodedToken: ",decodedToken);
+        console.log("incomingRefreshToken",incomingRefreshToken);
     
-        if(user?.refreshToken !== decodedToken){
+        if(dbRefreshToken !== incomingRefreshToken){
             throw new ApiError(401,"Refresh token is expired or used")
         }
 
@@ -248,7 +254,7 @@ const changeCurrentPassword = asyncHandler(async (req,res)=>{
 
     const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
 
-    if(isPasswordCorrect){
+    if(!isPasswordCorrect){
         throw new ApiError(400,"Incorrect Password");
     }
 
@@ -307,13 +313,13 @@ const updateUserAvatar = asyncHandler(async (req,res)=>{
 
     // TODO: delete old image - assignment
 
-    const user = await User.findById(req.user._id);
+    let user = await User.findById(req.user._id);
 
     if(!user){
         throw new ApiError(400,"unauthorized user");
     }
 
-    const avatarUrl = user.avatar;
+    const avatarUrl = await user.avatar;
 
     if(!deleteOnCloudinary(avatarUrl)){
         throw new ApiError(500,"Error while deleting oldImage")
@@ -326,8 +332,9 @@ const updateUserAvatar = asyncHandler(async (req,res)=>{
     }
 
     user.avatar = avatar.url;
-    user.select("-password -refreshToken");
     user.save({validateBeforeSave: false})
+
+    user = await User.findById(user._id).select("-password -refreshToken")
 
     return res
     .status(200)
@@ -340,13 +347,13 @@ const updateUserCoverImage = asyncHandler(async (req,res)=>{
 
     // TODO: delete old image - assignment
 
-    const user = await User.findById(req.user._id);
+    let user = await User.findById(req.user._id);
 
     if(!user){
         throw new ApiError(400,"unauthorized user");
     }
 
-    const coverImageUrl = user.coverImage;
+    const coverImageUrl = await user.coverImage;
 
     if(!deleteOnCloudinary(coverImageUrl)){
         throw new ApiError(500,"Error while deleting oldImage")
@@ -365,17 +372,21 @@ const updateUserCoverImage = asyncHandler(async (req,res)=>{
     }
 
     user.coverImage = coverImage.url;
-    user.select("-password -refreshToken");
     user.save({validateBeforeSave: false})
+
+    user = await User.findById(user._id).select("-password -refreshToken")
 
     return res
     .status(200)
     .json(new ApiResponse(200,user,"coverImage file updated successfully"));
 })
 
-const getUserChannelPorfile = asyncHandler(async (res,req)=>{
+const getUserChannelPorfile = asyncHandler(async (req,res)=>{
 
+    console.log(req.params);
     const {username} = req.params;
+
+    console.log(username);
 
     if(!username?.trim()){
         throw new ApiError(400,"username is missing")
@@ -404,7 +415,7 @@ const getUserChannelPorfile = asyncHandler(async (res,req)=>{
         {
             $addFields: {
                 subscriberCount: {
-                    $size: "$subscriber"
+                    $size: "$subscribers"
                 },
                 channelSubscribedToCount: {
                     $size: "$subscribedTo"
@@ -441,7 +452,7 @@ const getUserChannelPorfile = asyncHandler(async (res,req)=>{
     .json(new ApiResponse(200,channel,"User channel fetched succesfully"))
 })
 
-const getWatchHistory = asyncHandler(async (res,req)=>{
+const getWatchHistory = asyncHandler(async (req,res)=>{
     const user  = await User.aggregate([
         {
             $match: {
@@ -466,13 +477,15 @@ const getWatchHistory = asyncHandler(async (res,req)=>{
                             localField: "owner",
                             foreignField: "_id",
                             as: "owner",
-                            pipeline:{
-                                $project: {
-                                    fullName: 1,
-                                    username: 1,
-                                    avatar: 1
+                            pipeline:[
+                                {
+                                    $project: {
+                                        fullName: 1,
+                                        username: 1,
+                                        avatar: 1
+                                    }
                                 }
-                            }
+                            ]
                         }
                     },
                     {
@@ -486,6 +499,8 @@ const getWatchHistory = asyncHandler(async (res,req)=>{
             }
         }
     ])
+
+    console.log(user);
 
     return res
     .status(200)
