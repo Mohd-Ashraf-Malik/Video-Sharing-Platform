@@ -16,7 +16,8 @@ const videoSchema = new mongoose.Schema({
     },
     title: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     description: {
         type: String,
@@ -36,6 +37,6 @@ const videoSchema = new mongoose.Schema({
     }
 },{timestamps: true});
 
-mongoose.Schema(mongooseAggregatePaginate);
+mongoose.plugin(mongooseAggregatePaginate);
 
 export const Video = mongoose.model('Video',videoSchema);
