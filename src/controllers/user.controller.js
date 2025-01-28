@@ -278,7 +278,7 @@ const getCurrentUser = asyncHandler(async (req,res)=>{
     const user = await User.findById(req.user._id);
     return res
     .status(200)
-    .json(new ApiResponse(200,req.user,"current user fetched successfully"))
+    .json(new ApiResponse(200,user,"current user fetched successfully"))
 })
 
 const updateAccountDetails = asyncHandler(async (req,res)=>{
@@ -481,18 +481,26 @@ const getWatchHistory = asyncHandler(async (req,res)=>{
                                 {
                                     $project: {
                                         fullName: 1,
-                                        username: 1,
-                                        avatar: 1
+                                        avatar: 1,
                                     }
-                                }
+                                },
                             ]
                         }
                     },
                     {
-                        $addFields: {
-                            owner: {
+                        $addFields:{
+                            owner:{
                                 $first: "$owner"
                             }
+                        }
+                    },
+                    {
+                        $project: {
+                            owner: 1,
+                            title: 1,
+                            views: 1,
+                            createdAt: 1,
+                            videoFile: 1,
                         }
                     }
                 ]

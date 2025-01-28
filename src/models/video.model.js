@@ -34,7 +34,14 @@ const videoSchema = new mongoose.Schema({
     isPublished: {
         type: Boolean,
         default: true
-    }
+    },
+    watchedUsers: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            index: true
+        }
+    ]
 },{timestamps: true});
 
 mongoose.plugin(mongooseAggregatePaginate);
