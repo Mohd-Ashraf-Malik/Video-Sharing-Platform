@@ -17,7 +17,6 @@ A comprehensive backend system for a video-sharing platform built with Node.js a
 - **Runtime**: Node.js with ES6 modules
 - **Web Framework**: Express.js
 - **Database**: MongoDB with Mongoose ODM
-- **Cache**: Redis for session management
 - **Authentication**: JSON Web Tokens (JWT)
 
 ### Dependencies
