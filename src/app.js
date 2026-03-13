@@ -1,8 +1,10 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors"
+import http from "http"
 
 const app = express();
+const server = http.createServer(app);
 
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
@@ -39,4 +41,4 @@ app.use('/api/v1/dashboard',dashboardRouter)
 
 // http://localhost:8000/api/v1/users/register
 
-export {app}
+export default server

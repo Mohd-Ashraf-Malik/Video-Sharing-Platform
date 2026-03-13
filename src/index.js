@@ -3,7 +3,7 @@
 import dotenv from 'dotenv'
 import connectDB from "./connections/db/db.index.js";
 import { connectRedis } from './connections/redis/redis.index.js';
-import { app } from './app.js';
+import server  from './app.js';
 
 dotenv.config({
     path: './.env'
@@ -12,10 +12,10 @@ dotenv.config({
 
 connectDB()
 .then(()=>{
-    app.on("error",(error)=>{
+    server.on("error",(error)=>{
         console.log("App cannot listen : Error",error)
     })
-    app.listen(process.env.PORT || 8000,()=>{
+    server.listen(process.env.PORT || 8000,()=>{
         console.log(`App is listening on port: ${process.env.PORT}`);
     })
 })
