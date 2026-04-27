@@ -47,6 +47,7 @@ const registerUser = asyncHandler(async (req,res) => {
     }
 
     const avatarLocalPath = req.files?.avatar[0].path;
+    console.log(avatarLocalPath);
     let coverImageLocalPath;
 
     if(req.files&&Array.isArray(req.files.coverImage)&&req.files.coverImage.length>0){
@@ -166,12 +167,10 @@ const logoutUser = asyncHandler(async (req,res)=>{
     }
 
     return res
-    .status(200)
+    .status(204)
     .clearCookie("accessToken",options)
     .clearCookie("refreshToken",options)
-    .json(
-        new ApiResponse(200,{},"User logged out")
-    )
+    .send()
 })
 
 const refreshAccessToken = asyncHandler(async (req,res)=>{

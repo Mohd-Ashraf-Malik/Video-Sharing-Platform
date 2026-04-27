@@ -18,7 +18,10 @@ const getChannelStats = asyncHandler(async (req,res)=>{
             }
         }
     ])
+<<<<<<< HEAD
     
+=======
+>>>>>>> e900c09 (node module version upgraded to make backend compatible)
     const totalViews = resultTotalViews.length ? resultTotalViews[0].totalViews : 0;
 
     const resultTotalLikes = await Like.aggregate([

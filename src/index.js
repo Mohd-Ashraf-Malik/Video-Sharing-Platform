@@ -2,7 +2,6 @@
 
 import dotenv from 'dotenv'
 import connectDB from "./connections/db/db.index.js";
-import { connectRedis } from './connections/redis/redis.index.js';
 import server  from './app.js';
 
 dotenv.config({
