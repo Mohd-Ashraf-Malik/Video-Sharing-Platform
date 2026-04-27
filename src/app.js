@@ -38,6 +38,10 @@ app.use('/api/v1/playlist',playlistRouter)
 app.use('/api/v1/subscription',subscriptionRouter)
 app.use('/api/v1/dashboard',dashboardRouter)
 
+app.use('/',(req,res)=>{
+    res.send("Api is working");
+});
+
 
 // http://localhost:8000/api/v1/users/register
 
